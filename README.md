@@ -34,6 +34,9 @@ $ ./radi.sh -t nhk -s tokyo-fm -d 31 -o "/hoge/foo.m4a"
 ```
 radikoエリア内の局
 $ ./radi.sh -t radiko -s LFR -d 21 -o "/hoge/$(date "+%Y-%m-%d") テレフォン人生相談.m4a"
+
+$ ./radi.sh -t radiko -s INT -d 120 -o /hoge/barakan_beat_20210124.m4a -b 20210124180000 -e 20210124200000
+
 ```
 
 ```

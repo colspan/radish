@@ -221,13 +221,27 @@ get_hls_uri_nhk() {
 get_hls_uri_radiko() {
   station_id=$1
   radiko_login_status=$2
+  begin=$3 # 20210130090000
+  end=$4 # 20210130090000
 
   areafree="0"
   if [ "${radiko_login_status}" = "1" ]; then
     areafree="1"
   fi
 
-  curl --silent "http://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}'][1]/playlist_create_url/text()" - 2> /dev/null
+  if [ -z "${begin}" ]; then
+    url=$(curl --silent "http://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}'][1]/playlist_create_url/text()" - 2> /dev/null)
+    query=""
+  else
+    if [ -z "${end}" ]; then
+      echo "require end time option '-e'"
+      exit 1
+    fi
+    query="?station_id=${station_id}&ft=${begin}&to=${end}&l=15"
+    url="https://radiko.jp/v2/api/ts/playlist.m3u8"
+  fi
+
+  echo ${url}${query}
 }
 
 #######################################
@@ -299,7 +313,8 @@ duration=0
 output=""
 login_id=""
 login_password=""
-while getopts t:s:d:o:i:p:l option; do
+timefree=""
+while getopts t:s:d:o:i:p:b:e:l option; do
   case "${option}" in
     t)
       type="${OPTARG}"
@@ -318,6 +333,12 @@ while getopts t:s:d:o:i:p:l option; do
       ;;
     p)
       login_password="${OPTARG}"
+      ;;
+    b)
+      begin="${OPTARG}"
+      ;;
+    e)
+      end="${OPTARG}"
       ;;
     l)
       show_all_stations
@@ -428,7 +449,7 @@ elif [ "${type}" = "radiko" ]; then
     exit 1
   fi
 
-  playlist_uri=$(get_hls_uri_radiko "${station_id}" "${radiko_login_status}")
+  playlist_uri=$(get_hls_uri_radiko "${station_id}" "${radiko_login_status}" "${begin}" "${end}")
 fi
 if [ -z "${playlist_uri}" ]; then
   echo "Cannot get playlist URI" >&2
