@@ -314,6 +314,8 @@ output=""
 login_id=""
 login_password=""
 timefree=""
+begin=""
+end=""
 while getopts t:s:d:o:i:p:b:e:l option; do
   case "${option}" in
     t)

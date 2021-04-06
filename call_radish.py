@@ -5,7 +5,7 @@ from datetime import date, datetime, time, timedelta
 def last_weekday(target_weekday):
     today = date.today()
     days_delta = target_weekday - today.weekday()
-    if days_delta >= 0:
+    if days_delta > 0:
         days_delta -= 7
 
     last_weekday = today + timedelta(days=days_delta)
@@ -21,7 +21,23 @@ programs = [
         "weekday": 6,
         "start": time(18, 0),
         "duration": timedelta(minutes=120),
-    }
+    },
+    {
+        "service": "radiko",
+        "station": "INT",
+        "name": "ihearthawaii",
+        "weekday": 5,
+        "start": time(10, 0),
+        "duration": timedelta(minutes=60),
+    },
+    {
+        "service": "radiko",
+        "station": "INT",
+        "name": "lazysunday",
+        "weekday": 6,
+        "start": time(11, 0),
+        "duration": timedelta(minutes=240),
+    },
 ]
 
 
@@ -32,6 +48,7 @@ def get_command(program, output_dir=""):
         **{
             "start_str": start.strftime("%Y%m%d%H%M%S"),
             "end_str": (start + program["duration"]).strftime("%Y%m%d%H%M%S"),
+            "duration_str": int(program["duration"].seconds/60),
         }
     )
     filename = "{service}_{station}_{name}_{start_str}.m4a".format(**vars)
@@ -42,7 +59,7 @@ def get_command(program, output_dir=""):
         "-s",
         vars["station"],
         "-d",
-        vars["duration"],
+        vars["duration_str"],
         "-o",
         os.path.join(output_dir, filename),
         "-b",
@@ -54,4 +71,5 @@ def get_command(program, output_dir=""):
     return " ".join(map(str, cmd))
 
 
-print(get_command(programs[0]))
+for program in programs:
+    print(get_command(program))
